@@ -1,10 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 
 async function InstrumentsData() {
   const supabase = await createClient();
-  const { data: instruments } = await supabase.from("instruments").select();
+  const { data: { user } } = await supabase.auth.getUser();
 
+  if (!user) {
+    // only redirect/authenticate for this route
+    redirect("/auth/login");
+  }
+
+  const { data: instruments } = await supabase.from("instruments").select();
   return <pre>{JSON.stringify(instruments, null, 2)}</pre>;
 }
 
